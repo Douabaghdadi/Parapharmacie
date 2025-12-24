@@ -36,9 +36,9 @@ export default function ProductsPage() {
   const filtered = products.filter((prod: any) => {
     const matchSearch = prod.name.toLowerCase().includes(search.toLowerCase()) ||
       prod.category?.name.toLowerCase().includes(search.toLowerCase()) ||
-      prod.subcategory?.name.toLowerCase().includes(search.toLowerCase());
+      prod.subcategories?.some((sub: any) => sub.name.toLowerCase().includes(search.toLowerCase()));
     const matchCategory = !filterCategory || prod.category?._id === filterCategory;
-    const matchSubcategory = !filterSubcategory || prod.subcategory?._id === filterSubcategory;
+    const matchSubcategory = !filterSubcategory || prod.subcategories?.some((sub: any) => sub._id === filterSubcategory);
     const matchStock = !filterStock || 
       (filterStock === "in" && prod.stock > 0) ||
       (filterStock === "out" && prod.stock === 0) ||
@@ -217,8 +217,9 @@ export default function ProductsPage() {
                             <th>Nom</th>
                             <th>Marque</th>
                             <th>Catégorie</th>
-                            <th>Sous-catégorie</th>
+                            <th>Sous-catégories</th>
                             <th>Prix</th>
+                            <th>Réduction</th>
                             <th>Stock</th>
                             <th>Actions</th>
                           </tr>
@@ -232,8 +233,35 @@ export default function ProductsPage() {
                               <td>{product.name}</td>
                               <td>{product.brand?.name || <span className="text-muted">-</span>}</td>
                               <td>{product.category?.name}</td>
-                              <td>{product.subcategory?.name}</td>
-                              <td>{product.price} €</td>
+                              <td>
+                                {product.subcategories?.length > 0 ? (
+                                  product.subcategories.map((sub: any, idx: number) => (
+                                    <span key={sub._id} className="badge badge-info me-1">
+                                      {sub.name}
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span className="text-muted">-</span>
+                                )}
+                              </td>
+                              <td>
+                                {product.discount > 0 ? (
+                                  <>
+                                    <span className="text-decoration-line-through text-muted">{product.price} TND</span>
+                                    <br />
+                                    <span className="text-success fw-bold">{(product.price * (1 - product.discount / 100)).toFixed(2)} TND</span>
+                                  </>
+                                ) : (
+                                  <span>{product.price} TND</span>
+                                )}
+                              </td>
+                              <td>
+                                {product.discount > 0 ? (
+                                  <span className="badge badge-danger">-{product.discount}%</span>
+                                ) : (
+                                  <span className="text-muted">-</span>
+                                )}
+                              </td>
                               <td>
                                 <label className={`badge ${product.stock > 10 ? 'badge-success' : product.stock > 0 ? 'badge-warning' : 'badge-danger'}`}>
                                   {product.stock}

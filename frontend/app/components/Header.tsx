@@ -92,7 +92,7 @@ export default function Header() {
       </div>
       <div className="container-fluid bg-light py-3">
         <div className="container">
-          <div style={{display: 'flex', gap: '0'}}>
+          <div style={{display: 'flex', gap: '0', justifyContent: 'center'}}>
             {categories.map(cat => {
               const catSubcategories = subcategories.filter(sub => sub.category?._id === cat._id);
               return (
@@ -133,9 +133,9 @@ export default function Header() {
                       onMouseLeave={() => setHoveredCategory(null)}
                     >
                       {catSubcategories.map(sub => (
-                        <a
+                        <Link
                           key={sub._id}
-                          href="#"
+                          href={`/subcategory/${sub._id}`}
                           style={{
                             display: 'block',
                             padding: '8px 16px',
@@ -154,7 +154,7 @@ export default function Header() {
                           }}
                         >
                           {sub.name}
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   )}

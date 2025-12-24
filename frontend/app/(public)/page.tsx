@@ -68,46 +68,46 @@ export default function Home() {
         <div className="container py-5">
           <div className="row g-4">
             <div className="col-md-6 col-lg-3">
-              <div className="featurs-item text-center rounded bg-light p-4">
+              <div className="featurs-item text-center rounded bg-light p-4 h-100 d-flex flex-column">
                 <div className="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
                   <i className="fas fa-car-side fa-3x text-white"></i>
                 </div>
                 <div className="featurs-content text-center">
                   <h5>Livraison Gratuite</h5>
-                  <p className="mb-0">Dès 100 DT d’achat dans toute la Tunisie</p>
+                  <p className="mb-0" style={{minHeight: '48px'}}>Dès 100 DT d'achat dans toute la Tunisie</p>
                 </div>
               </div>
             </div>
             <div className="col-md-6 col-lg-3">
-              <div className="featurs-item text-center rounded bg-light p-4">
+              <div className="featurs-item text-center rounded bg-light p-4 h-100 d-flex flex-column">
                 <div className="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
                   <i className="fas fa-user-shield fa-3x text-white"></i>
                 </div>
                 <div className="featurs-content text-center">
                   <h5>Paiement sécurisé</h5>
-                  <p className="mb-0">Paiement 100% sécurisé</p>
+                  <p className="mb-0" style={{minHeight: '48px'}}>Paiement 100% sécurisé</p>
                 </div>
               </div>
             </div>
             <div className="col-md-6 col-lg-3">
-              <div className="featurs-item text-center rounded bg-light p-4">
+              <div className="featurs-item text-center rounded bg-light p-4 h-100 d-flex flex-column">
                 <div className="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
                   <i className="fas fa-exchange-alt fa-3x text-white"></i>
                 </div>
                 <div className="featurs-content text-center">
                   <h5>Meilleurs prix</h5>
-                  <p className="mb-0">Bénéficiez du prix le plus bas dans la marché tunisien</p>
+                  <p className="mb-0" style={{minHeight: '48px'}}>Bénéficiez du prix le plus bas dans la marché tunisien</p>
                 </div>
               </div>
             </div>
             <div className="col-md-6 col-lg-3">
-              <div className="featurs-item text-center rounded bg-light p-4">
+              <div className="featurs-item text-center rounded bg-light p-4 h-100 d-flex flex-column">
                 <div className="featurs-icon btn-square rounded-circle bg-secondary mb-5 mx-auto">
                   <i className="fa fa-phone-alt fa-3x text-white"></i>
                 </div>
                 <div className="featurs-content text-center">
                   <h5>Service client</h5>
-                  <p className="mb-0">Contactez-nous sur :
+                  <p className="mb-0" style={{minHeight: '48px'}}>Contactez-nous sur :
 (+216) 29 135 995</p>
                 </div>
               </div>
