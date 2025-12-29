@@ -1,11 +1,14 @@
 "use client";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage() {
   const { cart, getCartTotal, clearCart } = useCart();
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -14,8 +17,25 @@ export default function CheckoutPage() {
     postalCode: '',
     paymentMethod: 'cash'
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+
+  useEffect(() => {
+    // Vérifier l'authentification au chargement
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // Sauvegarder l'URL actuelle pour rediriger après connexion
+      localStorage.setItem('redirectAfterLogin', '/checkout');
+      router.push('/login');
+      return;
+    }
+    setIsAuthenticated(true);
+  }, [router]);
+
+  useEffect(() => {
+    // Rediriger vers le panier si vide
+    if (cart.length === 0 && !loading && isAuthenticated) {
+      router.push('/cart');
+    }
+  }, [cart, loading, isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

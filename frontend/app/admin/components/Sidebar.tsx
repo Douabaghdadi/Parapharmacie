@@ -35,6 +35,12 @@ export default function Sidebar() {
             <i className="mdi mdi-package-variant menu-icon"></i>
           </Link>
         </li>
+        <li className={`nav-item ${pathname.startsWith('/admin/orders') ? 'active' : ''}`}>
+          <Link className="nav-link" href="/admin/orders">
+            <span className="menu-title">Commandes</span>
+            <i className="mdi mdi-cart menu-icon"></i>
+          </Link>
+        </li>
         <li className={`nav-item ${pathname.startsWith('/admin/categories') ? 'active' : ''}`}>
           <Link className="nav-link" href="/admin/categories">
             <span className="menu-title">Catégories</span>

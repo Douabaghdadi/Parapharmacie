@@ -16,21 +16,53 @@ export default function ProductsPage() {
   const [filterStock, setFilterStock] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchProducts();
-    fetch("http://localhost:5000/api/categories")
-      .then(r => r.json())
-      .then(data => setCategories(data));
-    fetch("http://localhost:5000/api/subcategories")
-      .then(r => r.json())
-      .then(data => setSubcategories(data));
+    fetchCategories();
+    fetchSubcategories();
   }, []);
 
-  const fetchProducts = () => {
-    fetch("http://localhost:5000/api/products")
-      .then(r => r.json())
-      .then(data => setProducts(data));
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await fetch("http://localhost:5000/api/products");
+      if (!response.ok) throw new Error("Erreur lors du chargement des produits");
+      const data = await response.json();
+      setProducts(data);
+    } catch (err: any) {
+      console.error("Erreur:", err);
+      setError(err.message || "Impossible de charger les produits. Vérifiez que le backend est démarré.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/categories");
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (err) {
+      console.error("Erreur lors du chargement des catégories:", err);
+    }
+  };
+
+  const fetchSubcategories = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/subcategories");
+      if (response.ok) {
+        const data = await response.json();
+        setSubcategories(data);
+      }
+    } catch (err) {
+      console.error("Erreur lors du chargement des sous-catégories:", err);
+    }
   };
 
   const filtered = products.filter((prod: any) => {
@@ -63,10 +95,62 @@ export default function ProductsPage() {
 
   const deleteProduct = async (id: string) => {
     if (confirm("Voulez-vous vraiment supprimer ce produit ?")) {
-      await fetch(`http://localhost:5000/api/products/${id}`, { method: "DELETE" });
-      fetchProducts();
+      try {
+        const response = await fetch(`http://localhost:5000/api/products/${id}`, { method: "DELETE" });
+        if (!response.ok) throw new Error("Erreur lors de la suppression");
+        fetchProducts();
+      } catch (err) {
+        alert("Erreur lors de la suppression du produit");
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="container-scroller">
+        <Navbar />
+        <div className="container-fluid page-body-wrapper">
+          <Sidebar />
+          <div className="main-panel">
+            <div className="content-wrapper">
+              <div className="d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Chargement...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container-scroller">
+        <Navbar />
+        <div className="container-fluid page-body-wrapper">
+          <Sidebar />
+          <div className="main-panel">
+            <div className="content-wrapper">
+              <div className="alert alert-danger" role="alert">
+                <h4 className="alert-heading">
+                  <i className="mdi mdi-alert-circle"></i> Erreur de chargement
+                </h4>
+                <p>{error}</p>
+                <hr />
+                <p className="mb-0">
+                  <button className="btn btn-primary" onClick={fetchProducts}>
+                    <i className="mdi mdi-refresh"></i> Réessayer
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-scroller">
@@ -278,7 +362,17 @@ export default function ProductsPage() {
                             </tr>
                           )) : (
                             <tr>
-                              <td colSpan={8} className="text-center">Aucun produit</td>
+                              <td colSpan={9} className="text-center py-4">
+                                <i className="mdi mdi-package-variant-closed" style={{ fontSize: '48px', color: '#ccc' }}></i>
+                                <p className="text-muted mt-2">
+                                  {products.length === 0 ? "Aucun produit dans la base de données" : "Aucun produit ne correspond à vos critères"}
+                                </p>
+                                {products.length === 0 && (
+                                  <Link href="/admin/products/new" className="btn btn-primary mt-2">
+                                    <i className="mdi mdi-plus"></i> Ajouter votre premier produit
+                                  </Link>
+                                )}
+                              </td>
                             </tr>
                           )}
                         </tbody>

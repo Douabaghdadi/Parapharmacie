@@ -10,12 +10,20 @@ export default function Header() {
   const [categories, setCategories] = useState<any[]>([]);
   const [subcategories, setSubcategories] = useState<any[]>([]);
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const { getCartCount } = useCart();
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (userData && userData !== 'undefined') {
-      setUser(JSON.parse(userData));
+      const parsedUser = JSON.parse(userData);
+      setUser(parsedUser);
+      
+      // Charger le nombre de commandes en attente
+      if (parsedUser) {
+        fetchPendingOrders();
+      }
     }
     
     fetch('http://localhost:5000/api/categories')
@@ -27,12 +35,45 @@ export default function Header() {
       .then(res => res.json())
       .then(data => setSubcategories(data))
       .catch(err => console.error('Erreur chargement sous-catégories:', err));
+
+    // Fermer le menu utilisateur quand on clique ailleurs
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.dropdown')) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
+
+  const fetchPendingOrders = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      
+      const response = await fetch('http://localhost:5000/api/orders/my-orders', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const orders = await response.json();
+        const pending = orders.filter((o: any) => 
+          o.status === 'pending' || o.status === 'confirmed' || o.status === 'shipped'
+        ).length;
+        setPendingOrdersCount(pending);
+      }
+    } catch (error) {
+      console.error('Erreur chargement commandes:', error);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    setPendingOrdersCount(0);
     router.push('/login');
   };
 
@@ -73,17 +114,134 @@ export default function Header() {
                 )}
               </Link>
               {user ? (
-                <div className="dropdown">
-                  <a href="#" className="my-auto dropdown-toggle" data-bs-toggle="dropdown" style={{textDecoration: 'none'}}>
+                <div className="dropdown" style={{ position: 'relative' }}>
+                  <a 
+                    href="#" 
+                    className="my-auto" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowUserMenu(!showUserMenu);
+                    }}
+                    style={{textDecoration: 'none'}}
+                  >
                     <i className="fas fa-user fa-2x" style={{color: '#81c408'}}></i>
                   </a>
-                  <div className="dropdown-menu dropdown-menu-end">
-                    <span className="dropdown-item-text">{user.name}</span>
-                    <div className="dropdown-divider"></div>
-                    <a className="dropdown-item" onClick={handleLogout} style={{cursor: 'pointer'}}>
-                      <i className="fas fa-sign-out-alt me-2"></i>Déconnexion
-                    </a>
-                  </div>
+                  {showUserMenu && (
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        right: 0,
+                        top: '100%',
+                        marginTop: '0.5rem',
+                        minWidth: '280px',
+                        backgroundColor: 'white',
+                        borderRadius: '12px',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                        zIndex: 1000,
+                        overflow: 'hidden',
+                        border: '1px solid #e8e8e8'
+                      }}
+                    >
+                      <div style={{
+                        padding: '20px',
+                        backgroundColor: '#f8f9fa',
+                        borderBottom: '1px solid #e8e8e8'
+                      }}>
+                        <div style={{
+                          fontSize: '18px',
+                          fontWeight: '600',
+                          color: '#2c3e50',
+                          marginBottom: '4px'
+                        }}>
+                          {user.name || 'Utilisateur'}
+                        </div>
+                        <div style={{
+                          fontSize: '13px',
+                          color: '#6c757d'
+                        }}>
+                          {user.email}
+                        </div>
+                      </div>
+                      
+                      <div style={{ padding: '8px 0' }}>
+                        <Link 
+                          href={user.role === 'admin' ? '/admin' : '/client'} 
+                          onClick={() => setShowUserMenu(false)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '14px 20px',
+                            color: '#2c3e50',
+                            textDecoration: 'none',
+                            fontSize: '15px',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#f8f9fa';
+                            e.currentTarget.style.paddingLeft = '24px';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.paddingLeft = '20px';
+                          }}
+                        >
+                          <i 
+                            className={`fas ${user.role === 'admin' ? 'fa-cog' : 'fa-user-circle'}`}
+                            style={{
+                              fontSize: '18px',
+                              marginRight: '12px',
+                              color: '#81c408',
+                              width: '20px',
+                              textAlign: 'center'
+                            }}
+                          ></i>
+                          {user.role === 'admin' ? 'Administration' : 'Mon Compte'}
+                        </Link>
+                      </div>
+
+                      <div style={{
+                        borderTop: '1px solid #e8e8e8',
+                        padding: '8px 0'
+                      }}>
+                        <a 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setShowUserMenu(false);
+                            handleLogout();
+                          }} 
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '14px 20px',
+                            color: '#dc3545',
+                            textDecoration: 'none',
+                            fontSize: '15px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#fff5f5';
+                            e.currentTarget.style.paddingLeft = '24px';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                            e.currentTarget.style.paddingLeft = '20px';
+                          }}
+                        >
+                          <i 
+                            className="fas fa-sign-out-alt"
+                            style={{
+                              fontSize: '18px',
+                              marginRight: '12px',
+                              width: '20px',
+                              textAlign: 'center'
+                            }}
+                          ></i>
+                          Déconnexion
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <Link href="/login" className="my-auto">

@@ -4,11 +4,13 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import ProductReviews from '../../../components/ProductReviews';
 import StarRating from '../../../components/StarRating';
+import { useCart } from '../../../context/CartContext';
 
 export default function ProductPage() {
   const params = useParams();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/products/${params.id}`)
@@ -40,6 +42,12 @@ export default function ProductPage() {
   const finalPrice = product.discount > 0 
     ? (product.price * (1 - product.discount / 100)).toFixed(2)
     : product.price;
+
+  const handleAddToCart = () => {
+    if (product.stock > 0) {
+      addToCart(product);
+    }
+  };
 
   return (
     <div style={{marginTop: '160px', backgroundColor: '#f8f9fa', minHeight: '100vh'}}>
@@ -107,6 +115,7 @@ export default function ProductPage() {
                 </div>
 
                 <button 
+                  onClick={handleAddToCart}
                   style={{
                     width: '100%',
                     padding: '18px',
@@ -122,7 +131,7 @@ export default function ProductPage() {
                     letterSpacing: '0.5px'
                   }}
                   disabled={product.stock === 0}
-                  onMouseEnter={(e) => !product.stock && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                  onMouseEnter={(e) => product.stock > 0 && (e.currentTarget.style.transform = 'translateY(-2px)')}
                   onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
                 >
                   <i className="fa fa-shopping-bag" style={{marginRight: '12px'}}></i>

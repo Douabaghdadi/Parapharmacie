@@ -9,15 +9,27 @@ export default function CategoriesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
-  const fetchCategories = () => {
-    fetch("http://localhost:5000/api/categories")
-      .then(r => r.json())
-      .then(data => setCategories(data));
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await fetch("http://localhost:5000/api/categories");
+      if (!response.ok) throw new Error("Erreur lors du chargement des catégories");
+      const data = await response.json();
+      setCategories(data);
+    } catch (err: any) {
+      console.error("Erreur:", err);
+      setError(err.message || "Impossible de charger les catégories. Vérifiez que le backend est démarré.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filtered = categories.filter((cat: any) => {
@@ -32,10 +44,62 @@ export default function CategoriesPage() {
 
   const deleteCategory = async (id: string) => {
     if (confirm("Voulez-vous vraiment supprimer cette catégorie ?")) {
-      await fetch(`http://localhost:5000/api/categories/${id}`, { method: "DELETE" });
-      fetchCategories();
+      try {
+        const response = await fetch(`http://localhost:5000/api/categories/${id}`, { method: "DELETE" });
+        if (!response.ok) throw new Error("Erreur lors de la suppression");
+        fetchCategories();
+      } catch (err) {
+        alert("Erreur lors de la suppression de la catégorie");
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="container-scroller">
+        <Navbar />
+        <div className="container-fluid page-body-wrapper">
+          <Sidebar />
+          <div className="main-panel">
+            <div className="content-wrapper">
+              <div className="d-flex justify-content-center align-items-center" style={{ height: "80vh" }}>
+                <div className="spinner-border text-primary" role="status">
+                  <span className="visually-hidden">Chargement...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container-scroller">
+        <Navbar />
+        <div className="container-fluid page-body-wrapper">
+          <Sidebar />
+          <div className="main-panel">
+            <div className="content-wrapper">
+              <div className="alert alert-danger" role="alert">
+                <h4 className="alert-heading">
+                  <i className="mdi mdi-alert-circle"></i> Erreur de chargement
+                </h4>
+                <p>{error}</p>
+                <hr />
+                <p className="mb-0">
+                  <button className="btn btn-primary" onClick={fetchCategories}>
+                    <i className="mdi mdi-refresh"></i> Réessayer
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-scroller">
@@ -97,7 +161,17 @@ export default function CategoriesPage() {
                             </tr>
                           )) : (
                             <tr>
-                              <td colSpan={3} className="text-center">Aucune catégorie</td>
+                              <td colSpan={3} className="text-center py-4">
+                                <i className="mdi mdi-folder-open" style={{ fontSize: '48px', color: '#ccc' }}></i>
+                                <p className="text-muted mt-2">
+                                  {categories.length === 0 ? "Aucune catégorie dans la base de données" : "Aucune catégorie ne correspond à votre recherche"}
+                                </p>
+                                {categories.length === 0 && (
+                                  <Link href="/admin/categories/new" className="btn btn-primary mt-2">
+                                    <i className="mdi mdi-plus"></i> Ajouter votre première catégorie
+                                  </Link>
+                                )}
+                              </td>
                             </tr>
                           )}
                         </tbody>
