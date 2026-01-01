@@ -5,12 +5,14 @@ import Link from 'next/link';
 import ProductReviews from '../../../components/ProductReviews';
 import StarRating from '../../../components/StarRating';
 import { useCart } from '../../../context/CartContext';
+import { useFavorites } from '../../../context/FavoritesContext';
 
 export default function ProductPage() {
   const params = useParams();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/products/${params.id}`)
@@ -136,6 +138,47 @@ export default function ProductPage() {
                 >
                   <i className="fa fa-shopping-bag" style={{marginRight: '12px'}}></i>
                   {product.stock > 0 ? 'Ajouter au panier' : 'Produit indisponible'}
+                </button>
+
+                <button 
+                  onClick={() => {
+                    if (isFavorite(product._id)) {
+                      removeFavorite(product._id);
+                    } else {
+                      addFavorite(product._id);
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '18px',
+                    backgroundColor: isFavorite(product._id) ? '#fff0f0' : 'white',
+                    color: isFavorite(product._id) ? '#e74c3c' : '#666',
+                    border: isFavorite(product._id) ? '2px solid #e74c3c' : '2px solid #e0e0e0',
+                    borderRadius: '12px',
+                    fontSize: '18px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    marginTop: '15px',
+                    letterSpacing: '0.5px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    if (!isFavorite(product._id)) {
+                      e.currentTarget.style.borderColor = '#e74c3c';
+                      e.currentTarget.style.color = '#e74c3c';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    if (!isFavorite(product._id)) {
+                      e.currentTarget.style.borderColor = '#e0e0e0';
+                      e.currentTarget.style.color = '#666';
+                    }
+                  }}
+                >
+                  <i className={isFavorite(product._id) ? "fas fa-heart" : "far fa-heart"} style={{marginRight: '12px'}}></i>
+                  {isFavorite(product._id) ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 </button>
 
                 {product.stock > 0 && product.stock < 10 && (

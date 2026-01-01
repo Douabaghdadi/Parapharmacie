@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useFavorites } from '../context/FavoritesContext';
 
 export default function Header() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function Header() {
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { getCartCount } = useCart();
+  const { favoritesCount } = useFavorites();
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -28,12 +30,18 @@ export default function Header() {
     
     fetch('http://localhost:5000/api/categories')
       .then(res => res.json())
-      .then(data => setCategories(data))
+      .then(data => {
+        console.log('Catégories chargées:', data);
+        setCategories(data);
+      })
       .catch(err => console.error('Erreur chargement catégories:', err));
 
     fetch('http://localhost:5000/api/subcategories')
       .then(res => res.json())
-      .then(data => setSubcategories(data))
+      .then(data => {
+        console.log('Sous-catégories chargées:', data);
+        setSubcategories(data);
+      })
       .catch(err => console.error('Erreur chargement sous-catégories:', err));
 
     // Fermer le menu utilisateur quand on clique ailleurs
@@ -111,6 +119,12 @@ export default function Header() {
                 <i className="fa fa-shopping-bag fa-2x" style={{color: '#81c408'}}></i>
                 {getCartCount() > 0 && (
                   <span className="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style={{top: '-5px', left: '15px', height: '20px', minWidth: '20px'}}>{getCartCount()}</span>
+                )}
+              </Link>
+              <Link href="/client/favorites" className="position-relative me-4 my-auto">
+                <i className="fa fa-heart fa-2x" style={{color: '#81c408'}}></i>
+                {favoritesCount > 0 && (
+                  <span className="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style={{top: '-5px', left: '15px', height: '20px', minWidth: '20px'}}>{favoritesCount}</span>
                 )}
               </Link>
               {user ? (

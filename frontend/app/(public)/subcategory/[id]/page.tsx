@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useCart } from '../../../context/CartContext';
+import { useFavorites } from '../../../context/FavoritesContext';
 
 export default function SubcategoryPage() {
   const params = useParams();
@@ -16,6 +17,7 @@ export default function SubcategoryPage() {
   const [showDiscountOnly, setShowDiscountOnly] = useState(false);
   const [sortBy, setSortBy] = useState('');
   const { addToCart } = useCart();
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
 
   useEffect(() => {
     fetch(`http://localhost:5000/api/subcategories/${params.id}`)
@@ -231,6 +233,41 @@ export default function SubcategoryPage() {
                                 -{product.discount}%
                               </div>
                             )}
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (isFavorite(product._id)) {
+                                  removeFavorite(product._id);
+                                } else {
+                                  addFavorite(product._id);
+                                }
+                              }}
+                              style={{
+                                position: 'absolute',
+                                bottom: '15px',
+                                right: '15px',
+                                backgroundColor: 'white',
+                                border: 'none',
+                                borderRadius: '50%',
+                                width: '40px',
+                                height: '40px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                                transition: 'all 0.3s'
+                              }}
+                            >
+                              <i 
+                                className={isFavorite(product._id) ? "fas fa-heart" : "far fa-heart"} 
+                                style={{
+                                  fontSize: '18px', 
+                                  color: isFavorite(product._id) ? '#e74c3c' : '#999'
+                                }}
+                              ></i>
+                            </button>
                           </div>
                         </Link>
                         <div style={{padding: '20px', flex: 1, display: 'flex', flexDirection: 'column'}}>

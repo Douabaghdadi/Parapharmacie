@@ -11,6 +11,7 @@ const userRoutes = require('./routes/userRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const statsRoutes = require('./routes/statsRoutes');
+const favoriteRoutes = require('./routes/favorites');
 require('dotenv').config();
 
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api/brands', brandRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/favorites', favoriteRoutes);
 
 // Lancer le serveur
 app.listen(PORT, () => {

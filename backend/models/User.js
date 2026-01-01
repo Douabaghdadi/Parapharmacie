@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
   facebookId: String,
   googleId: String,
   resetPasswordToken: String,
-  resetPasswordExpires: Date
+  resetPasswordExpires: Date,
+  favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

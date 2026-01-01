@@ -74,7 +74,7 @@ export default function CheckoutPage() {
         const orderRef = order._id.slice(-8).toUpperCase();
         clearCart();
         setTimeout(() => {
-          router.push(`/order-success?ref=${orderRef}`);
+          router.push(`/order-success?ref=${orderRef}&id=${order._id}`);
         }, 100);
       } else {
         const data = await res.json();

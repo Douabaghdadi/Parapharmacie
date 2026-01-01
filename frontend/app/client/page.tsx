@@ -68,20 +68,12 @@ export default function ClientDashboard() {
 
   const dashboardCards: DashboardCard[] = [
     {
-      title: "Vos commandes",
-      subtitle: "Visualisez vos commandes enregistrées",
-      icon: "🛍️",
-      link: "/client/commandes",
-      color: "#2c3e50",
+      title: "Mes commandes",
+      subtitle: "Suivez l'état de toutes vos commandes",
+      icon: "📦",
+      link: "/client/orders",
+      color: "#667eea",
       bgGradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-    },
-    {
-      title: "Vos factures",
-      subtitle: "Visualisez vos commandes facturées",
-      icon: "📄",
-      link: "/client/invoices",
-      color: "#16a085",
-      bgGradient: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)"
     },
     {
       title: "Votre évolution",
